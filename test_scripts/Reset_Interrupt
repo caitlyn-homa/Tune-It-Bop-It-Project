@@ -1,0 +1,28 @@
+//code for setting reset has an interrupt 
+
+const byte interrupt_pin = 3;
+
+int iteration = 0;
+
+void setup() {
+  // should set digital pin 3 to monitor reset button state and trigger interrupt once change is detected 
+  pinMode(interrupt_pin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(interrupt_pin), reset_pressed, CHANGE);
+
+  // put LED here to check if interrupt is working 
+  pinMode(8, OUTPUT);
+
+}
+
+void loop() {
+  // keep led off 
+  digitalWrite(8, LOW);
+}
+
+void reset_pressed(){
+  // turn light on for a second then turn off 
+  digitalWrite(8, HIGH);
+  delay(1000);
+  digitalWrite(8, LOW);
+  
+}
