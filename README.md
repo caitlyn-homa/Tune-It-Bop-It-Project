@@ -1,8 +1,8 @@
 # Tune-It-Bop-It-Project
 
 
-I/O
-| Description   | Pin           | LABEL |
+## ATMega328p I/O List
+| Description   | Pin           | Label |
 | ------------- | ------------- | ---   |
 | Tuner | A0 | TNR |
 | Volume | A3 | VOL |
