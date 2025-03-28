@@ -13,7 +13,7 @@ bool isComplete = false;
 //Keeps track of what round player is on - will be used to exit loop if player loses 
 byte iteration = 0;
 //Flag for if game is restarting 
-bool startPressed = false;
+bool restartPressed = false;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -23,7 +23,7 @@ LIS3DH SensorOne( I2C_MODE, 0x19 );
 
 void setup() {
   //Seed random number generation with current time -ensures variation in the sequence of random numbers 
-  randomSeed(millis());
+  randomSeed(analogRead(A1));
 
   //Pin Set-Up 
   // Reset/Start button
@@ -63,20 +63,21 @@ void setup() {
 
 void loop() {
 
-  //Restart Game 
-  if(startPressed)
+  oled_display_str("Press Start", 2);
+
+  //Restart Game
+  if(restartPressed)
   {
     score = 0;
     time_to_complete = 10;
-    oled_display_str("Restarting", 3);
     //motor_reset();
   
-    startPressed = false;
+    restartPressed = false;
   
   
-    oled_display_str("Start", 3);
+    oled_display_str("Get Ready!", 2);
     countdown(3);
-  
+
   //If start button has been pushed - begin the game 
   //if (digitalRead(3) == LOW)
   //{
@@ -96,6 +97,7 @@ void loop() {
         //Cut out sound/music
         //Play Pull it! sound
         digitalWrite(11, HIGH);
+        oled_display_str("Pull It!", 2);
         delay(1000);
         isComplete = has_pulled(time_to_complete);
 
@@ -107,10 +109,12 @@ void loop() {
           score++; 
           oled_display_score(score);
           rotate_motor(1,2);
+          delay(500);
         } 
         else {
           //Cue loss protocol
           player_lost(score);
+          delay(1000);
         }
       }
       //Tune-It!
@@ -119,6 +123,7 @@ void loop() {
         //Have music "flip" between channels 
         //Play Tune it! sound
         digitalWrite(12, HIGH);
+        oled_display_str("Tune It!", 2);
         delay(1000);
         isComplete = has_tuned(time_to_complete);
 
@@ -130,6 +135,7 @@ void loop() {
           score++; 
           oled_display_score(score);
           rotate_motor(1,2);
+          delay(500);
         } 
         else {
           //Cue loss protocol
@@ -142,6 +148,7 @@ void loop() {
         //Have static sound play 
         //Play Shake it! sound
         digitalWrite(13, HIGH);
+        oled_display_str("Shake It!", 2);
         delay(1000);
         isComplete = has_shaken(time_to_complete);
 
@@ -153,6 +160,7 @@ void loop() {
           score++; 
           oled_display_score(score);
           rotate_motor(1,2);
+          delay(500);
         } 
         else {
           //Cue loss protocol
@@ -168,11 +176,6 @@ void loop() {
         //Will decrease by 2.85 seconds if player makes it to the end 
         time_to_complete = time_to_complete - 0.15;
       }
-      else 
-      {
-        //Else, no change to time interval 
-        time_to_complete = time_to_complete;
-      }
 
     } //end of for loop
 
@@ -183,10 +186,11 @@ void loop() {
     }
 
     //Reset game back to starting conditions
-    restart_game();
+    //restart_game();
 
-  //}//end of if start button has been pressed 
+ // }//end of if start button has been pressed 
   }
+  iteration = 0;
 }
 
 void countdown(int time) 
@@ -210,7 +214,8 @@ void countdown(int time)
 //Steps to follow if player has lost 
 void player_lost(byte score)
 {
-  oled_display_str("You Lost", 4);
+  oled_display_str("You Lost", 3);
+  delay(2000);
   //Play broken radio sounds 
   //Display final score 
 
@@ -227,8 +232,18 @@ void player_won()
 //Sets restart flag to true 
 void restart_game()
 {
-  startPressed = true;
-  iteration = 101;
+  if(iteration > 0)
+  {
+    iteration = 101;
+    restartPressed = false;
+    //oled_display_str("Restarting", 2);
+    //delay(500);
+  }
+  else
+  {
+  restartPressed = true;
+  }
+  
 
 }
 
@@ -401,7 +416,7 @@ void oled_set_up(){
     for(;;);
   }
 
-  delay(2000);
+  delay(200);
   display.clearDisplay();
 
   display.setTextSize(4);
@@ -412,7 +427,7 @@ void oled_set_up(){
   display.display(); 
 
   Serial.begin(9600);
-  delay(1000); //relax...
+  delay(100); //relax...
   Serial.println("Processor came out of reset.\n");
   
   //Call .begin() to configure the IMUs
@@ -428,7 +443,7 @@ void oled_set_up(){
 
 void oled_display_score(byte disp){
 
-  //delay(1000);
+  delay(10);
   display.clearDisplay();
   display.setTextSize(4);
 
@@ -442,7 +457,7 @@ void oled_display_score(byte disp){
 
 void oled_display_str(char* disp, byte text_size){
 
-  //delay(2000);
+  delay(10);
   display.clearDisplay();
   display.setTextSize(text_size);
 
@@ -505,7 +520,5 @@ void motor_reset()
      digitalWrite(st_d, HIGH);
      delay(t_step);
    }
- 
  }
-
-
+ 
