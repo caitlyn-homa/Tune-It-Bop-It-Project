@@ -89,6 +89,7 @@ void loop() {
           //Indicate success - maybe continue playing music?
           //Increase motor
           score++; 
+          oled_display_score(score);
         } 
         else {
           //Cue loss protocol
@@ -111,6 +112,7 @@ void loop() {
           //Indicate success - maybe continue playing music?
           //Increase motor
           score++; 
+          oled_display_score(score);
         } 
         else {
           //Cue loss protocol
@@ -133,6 +135,7 @@ void loop() {
           //Indicate success - maybe continue playing music?
           //Increase motor
           score++; 
+          oled_display_score(score);
         } 
         else {
           //Cue loss protocol
@@ -386,6 +389,20 @@ void oled_set_up(){
   {
 	  Serial.println("Sensor at 0x19 started.");
   }
+}
+
+void oled_display_score(byte disp){
+
+  delay(2000);
+  display.clearDisplay();
+  display.setTextSize(4);
+
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  // Display static text
+  display.println(disp);
+  display.display(); 
+
 }
 
 
