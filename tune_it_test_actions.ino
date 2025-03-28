@@ -78,10 +78,6 @@ void loop() {
     oled_display_str("Get Ready!", 2);
     countdown(3);
 
-  //If start button has been pushed - begin the game 
-  //if (digitalRead(3) == LOW)
-  //{
-
     //Game loop - Player wins after 99 rounds 
     for(iteration = 0; iteration<99; iteration++)
     {
@@ -186,9 +182,6 @@ void loop() {
     }
 
     //Reset game back to starting conditions
-    //restart_game();
-
- // }//end of if start button has been pressed 
   }
   iteration = 0;
 }
@@ -236,8 +229,6 @@ void restart_game()
   {
     iteration = 101;
     restartPressed = false;
-    //oled_display_str("Restarting", 2);
-    //delay(500);
   }
   else
   {
