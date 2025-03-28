@@ -301,16 +301,13 @@ bool has_tuned(int time_lim)
 }
 
 //Rotates motor needs specific time delay step and angle 
-void rotate_motor(int t_step, int angle)
+void rotate_motor(int t_step, int steps)
 {
   //Pins where motor is set up at 
   int st_a = 5;
   int st_b = 6;
   int st_c = 7;
   int st_d = 8;
-
-  //Calculate number of steps needed to rotate for specified angle
-  int steps = int(angle*(8.0/5.625));
   
   //Drive the stepper motor using appropriate pins for each step 
   for(int i = 0; i < steps; ++i)
@@ -358,6 +355,56 @@ void rotate_motor(int t_step, int angle)
   }
 }
 
+void motor_reset()
+{
+  int st_a = 5;
+  int st_b = 6;
+  int st_c = 7;
+  int st_d = 8;
+  int t_step = 2;
+  while(digitalRead(4)==0)
+  {
+    digitalWrite(st_a, LOW); //AD
+    digitalWrite(st_b, HIGH);
+    digitalWrite(st_c, HIGH);
+    digitalWrite(st_d, LOW);
+    delay(t_step);
+    digitalWrite(st_a, HIGH); //D
+    digitalWrite(st_b, HIGH);
+    digitalWrite(st_c, HIGH);
+    digitalWrite(st_d, LOW);
+    delay(t_step);
+    digitalWrite(st_a, HIGH); //CD
+    digitalWrite(st_b, HIGH);
+    digitalWrite(st_c, LOW);
+    digitalWrite(st_d, LOW);
+    delay(t_step);
+    digitalWrite(st_a, HIGH); //C
+    digitalWrite(st_b, HIGH);
+    digitalWrite(st_c, LOW);
+    digitalWrite(st_d, HIGH);
+    delay(t_step);
+    digitalWrite(st_a, HIGH); //BC
+    digitalWrite(st_b, LOW);
+    digitalWrite(st_c, LOW);
+    digitalWrite(st_d, HIGH);
+    delay(t_step);
+    digitalWrite(st_a, HIGH); //B
+    digitalWrite(st_b, LOW);
+    digitalWrite(st_c, HIGH);
+    digitalWrite(st_d, HIGH);
+    delay(t_step);
+    digitalWrite(st_a, LOW); //AB
+    digitalWrite(st_b, LOW);
+    digitalWrite(st_c, HIGH);
+    digitalWrite(st_d, HIGH);
+    delay(t_step);
+    digitalWrite(st_a, LOW); //A
+    digitalWrite(st_b, HIGH);
+    digitalWrite(st_c, HIGH);
+    digitalWrite(st_d, HIGH);
+    delay(t_step);
+  }
 
 //Sets up the OLED and displays Tune It! message 
 void oled_set_up(){
