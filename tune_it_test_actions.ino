@@ -29,22 +29,24 @@ void setup() {
   pinMode(3, INPUT_PULLUP);
   //attachInterrupt(digitalPinToInterrupt(3), restart_game, CHANGE); - set reset up as interrupt?
   // Pull Task
-  pinMode(8, OUTPUT);
-  pinMode(1, INPUT_PULLUP);
+  pinMode(2, INPUT_PULLUP);
   // Tune Task
-  // input at A0 
-  pinMode(8, OUTPUT);
+  pinMode(A0, INPUT);
   // Shake Task
-  pinMode(8, OUTPUT);
+  pinMode(A5, INPUT);
   // Stepper Motor 
   pinMode(5, OUTPUT); //st_a
   pinMode(6, OUTPUT); //st_b
   pinMode(7, OUTPUT); //st_c
   pinMode(8, OUTPUT); //st_d
-  //pinMode(0, INPUT_PULLUP);
   // OLED Display
-  pinMode(8, OUTPUT);  
-  // Audio player 
+  pinMode(A4, OUTPUT);  
+  // Speaker 
+  pinMode(0, INPUT);
+  pinMode(1, OUTPUT);
+
+  // Volume 
+  pinMode(A3, INPUT);
 
   //Set these pins up with LEDS & current limiting resistors to indicate which action has been selected 
   // just while the sound is not set up 
@@ -77,7 +79,7 @@ void loop() {
         //Cut out sound/music
         //Play Pull it! sound
         digitalWrite(11, HIGH);
-        delay(1000)
+        delay(1000);
         isComplete = has_pulled(time_to_complete);
 
         //If action is completed within the time 
@@ -99,7 +101,7 @@ void loop() {
         //Have music "flip" between channels 
         //Play Tune it! sound
         digitalWrite(12, HIGH);
-        delay(1000)
+        delay(1000);
         isComplete = has_tuned(time_to_complete);
 
         //If action is completed within the time 
@@ -121,7 +123,7 @@ void loop() {
         //Have static sound play 
         //Play Shake it! sound
         digitalWrite(13, HIGH);
-        delay(1000)
+        delay(1000);
         isComplete = has_shaken(time_to_complete);
 
         //If action is completed within the time 
@@ -162,7 +164,6 @@ void loop() {
     
     //Reset game back to starting conditions
     restart_game();
-
 
   }//end of if start button has been pressed 
 
