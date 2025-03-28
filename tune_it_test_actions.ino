@@ -13,7 +13,7 @@ bool isComplete = false;
 //Keeps track of what round player is on - will be used to exit loop if player loses 
 byte iteration = 0;
 //Flag for if game is restarting 
-bool restartPressed = false;
+bool startPressed = false;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -29,7 +29,7 @@ void setup() {
   // Reset/Start button
   pinMode(8, OUTPUT);
   pinMode(3, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(3), restart_game, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(3), restart_game, LOW);
   // Pull Task
   pinMode(2, INPUT_PULLUP);
   // Tune Task
@@ -62,20 +62,24 @@ void setup() {
 }
 
 void loop() {
+
+  //Restart Game 
+  if(startPressed)
+  {
+    score = 0;
+    time_to_complete = 10;
+    oled_display_str("Restarting", 3);
+    //motor_reset();
+  
+    startPressed = false;
+  
+  
+    oled_display_str("Start", 3);
+    countdown(3);
   
   //If start button has been pushed - begin the game 
-  if (digitalRead(3) == LOW)
-  {
-    //Restart Game 
-    if(restartPressed)
-    {
-      score = 0;
-      time_to_complete = 10;
-      oled_display_str("Restarting", 3);
-      motor_reset();
-      
-      restartPressed = false;
-    }
+  //if (digitalRead(3) == LOW)
+  //{
 
     //Game loop - Player wins after 99 rounds 
     for(iteration = 0; iteration<99; iteration++)
@@ -181,8 +185,26 @@ void loop() {
     //Reset game back to starting conditions
     restart_game();
 
-  }//end of if start button has been pressed 
+  //}//end of if start button has been pressed 
+  }
+}
 
+void countdown(int time) 
+{
+  time = time * 1000;  // Convert time to milliseconds
+  int starttime = millis();
+  int endtime = starttime;
+  int lastUpdateTime = starttime;  // To track when to update the display
+
+  while ((endtime - starttime) < time) {  // Run until the time limit is reached
+    endtime = millis();  // Update the current time
+
+    if (endtime - lastUpdateTime >= 1000) {  // If 1 second has passed
+      lastUpdateTime = endtime;  // Update the last update time
+      int secondsPassed = (endtime - starttime) / 1000;  // Calculate the seconds passed
+      oled_display_score(secondsPassed);  // Update the display
+    }
+  }
 }
 
 //Steps to follow if player has lost 
@@ -205,7 +227,9 @@ void player_won()
 //Sets restart flag to true 
 void restart_game()
 {
-  restartPressed = true;
+  startPressed = true;
+  iteration = 101;
+
 }
 
 
@@ -404,7 +428,7 @@ void oled_set_up(){
 
 void oled_display_score(byte disp){
 
-  delay(2000);
+  //delay(1000);
   display.clearDisplay();
   display.setTextSize(4);
 
@@ -418,7 +442,7 @@ void oled_display_score(byte disp){
 
 void oled_display_str(char* disp, byte text_size){
 
-  delay(2000);
+  //delay(2000);
   display.clearDisplay();
   display.setTextSize(text_size);
 
@@ -482,5 +506,6 @@ void motor_reset()
      delay(t_step);
    }
  
+ }
 
 
