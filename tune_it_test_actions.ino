@@ -175,6 +175,7 @@ void loop() {
 //Steps to follow if player has lost 
 void player_lost(byte score)
 {
+  oled_display_str("You Lost");
   //Play broken radio sounds 
   //Display final score 
 
@@ -392,6 +393,20 @@ void oled_set_up(){
 }
 
 void oled_display_score(byte disp){
+
+  delay(2000);
+  display.clearDisplay();
+  display.setTextSize(4);
+
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  // Display static text
+  display.println(disp);
+  display.display(); 
+
+}
+
+void oled_display_str(str disp){
 
   delay(2000);
   display.clearDisplay();
