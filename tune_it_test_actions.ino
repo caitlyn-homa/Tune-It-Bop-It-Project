@@ -12,6 +12,8 @@ int time_to_complete = 3;
 bool isComplete = false;
 //Keeps track of what round player is on - will be used to exit loop if player loses 
 byte iteration = 0;
+//Flag for if game is restarting 
+bool restartPressed = false;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -27,7 +29,7 @@ void setup() {
   // Reset/Start button
   pinMode(8, OUTPUT);
   pinMode(3, INPUT_PULLUP);
-  //attachInterrupt(digitalPinToInterrupt(3), restart_game, CHANGE); - set reset up as interrupt?
+  attachInterrupt(digitalPinToInterrupt(3), restart_game, CHANGE);
   // Pull Task
   pinMode(2, INPUT_PULLUP);
   // Tune Task
@@ -64,6 +66,17 @@ void loop() {
   //If start button has been pushed - begin the game 
   if (digitalRead(3) == LOW)
   {
+    //Restart Game 
+    if(restartPressed)
+    {
+      score = 0;
+      time_to_complete = 10;
+      oled_display_str("Restarting", 3);
+      motor_reset();
+      
+      restartPressed = false;
+    }
+
     //Game loop - Player wins after 99 rounds 
     for(iteration = 0; iteration<99; iteration++)
     {
@@ -87,9 +100,9 @@ void loop() {
         {
           digitalWrite(11, LOW);
           //Indicate success - maybe continue playing music?
-          //Increase motor
           score++; 
           oled_display_score(score);
+          rotate_motor(1,2);
         } 
         else {
           //Cue loss protocol
@@ -110,9 +123,9 @@ void loop() {
         {
           digitalWrite(12, LOW);
           //Indicate success - maybe continue playing music?
-          //Increase motor
           score++; 
           oled_display_score(score);
+          rotate_motor(1,2);
         } 
         else {
           //Cue loss protocol
@@ -133,9 +146,9 @@ void loop() {
         {
           digitalWrite(13, LOW);
           //Indicate success - maybe continue playing music?
-          //Increase motor
           score++; 
           oled_display_score(score);
+          rotate_motor(1,2);
         } 
         else {
           //Cue loss protocol
@@ -164,7 +177,7 @@ void loop() {
     {
       player_won();
     }
-    
+
     //Reset game back to starting conditions
     restart_game();
 
@@ -175,11 +188,11 @@ void loop() {
 //Steps to follow if player has lost 
 void player_lost(byte score)
 {
-  oled_display_str("You Lost");
+  oled_display_str("You Lost", 4);
   //Play broken radio sounds 
   //Display final score 
 
-  //Set iteration to 101 to exit game loop 
+  //Set iteration to 101 to exit game loop
   iteration = 101;
   
 }
@@ -188,14 +201,14 @@ void player_won()
 {
   //
 }
-//Steps to follow to bring game back to starting point
+
+//Sets restart flag to true 
 void restart_game()
 {
-  score = 0;
-  time_to_complete = 3;
-  //Put score motor back
-
+  restartPressed = true;
 }
+
+
 //Returns true or false depending if player has succesfully shaken the radio
 //Parameter - time_lime = time player has to complete the task 
 bool has_shaken(int time_lim)
@@ -355,56 +368,6 @@ void rotate_motor(int t_step, int steps)
   }
 }
 
-void motor_reset()
-{
-  int st_a = 5;
-  int st_b = 6;
-  int st_c = 7;
-  int st_d = 8;
-  int t_step = 2;
-  while(digitalRead(4)==0)
-  {
-    digitalWrite(st_a, LOW); //AD
-    digitalWrite(st_b, HIGH);
-    digitalWrite(st_c, HIGH);
-    digitalWrite(st_d, LOW);
-    delay(t_step);
-    digitalWrite(st_a, HIGH); //D
-    digitalWrite(st_b, HIGH);
-    digitalWrite(st_c, HIGH);
-    digitalWrite(st_d, LOW);
-    delay(t_step);
-    digitalWrite(st_a, HIGH); //CD
-    digitalWrite(st_b, HIGH);
-    digitalWrite(st_c, LOW);
-    digitalWrite(st_d, LOW);
-    delay(t_step);
-    digitalWrite(st_a, HIGH); //C
-    digitalWrite(st_b, HIGH);
-    digitalWrite(st_c, LOW);
-    digitalWrite(st_d, HIGH);
-    delay(t_step);
-    digitalWrite(st_a, HIGH); //BC
-    digitalWrite(st_b, LOW);
-    digitalWrite(st_c, LOW);
-    digitalWrite(st_d, HIGH);
-    delay(t_step);
-    digitalWrite(st_a, HIGH); //B
-    digitalWrite(st_b, LOW);
-    digitalWrite(st_c, HIGH);
-    digitalWrite(st_d, HIGH);
-    delay(t_step);
-    digitalWrite(st_a, LOW); //AB
-    digitalWrite(st_b, LOW);
-    digitalWrite(st_c, HIGH);
-    digitalWrite(st_d, HIGH);
-    delay(t_step);
-    digitalWrite(st_a, LOW); //A
-    digitalWrite(st_b, HIGH);
-    digitalWrite(st_c, HIGH);
-    digitalWrite(st_d, HIGH);
-    delay(t_step);
-  }
 
 //Sets up the OLED and displays Tune It! message 
 void oled_set_up(){
@@ -453,11 +416,11 @@ void oled_display_score(byte disp){
 
 }
 
-void oled_display_str(str disp){
+void oled_display_str(char* disp, byte text_size){
 
   delay(2000);
   display.clearDisplay();
-  display.setTextSize(4);
+  display.setTextSize(text_size);
 
   display.setTextColor(WHITE);
   display.setCursor(0, 10);
@@ -466,5 +429,58 @@ void oled_display_str(str disp){
   display.display(); 
 
 }
+
+//Resets motor back to starting position 
+void motor_reset()
+ {
+   int st_a = 5;
+   int st_b = 6;
+   int st_c = 7;
+   int st_d = 8;
+   int t_step = 2;
+   while(digitalRead(4)==0)
+   {
+     digitalWrite(st_a, LOW); //AD
+     digitalWrite(st_b, HIGH);
+     digitalWrite(st_c, HIGH);
+     digitalWrite(st_d, LOW);
+     delay(t_step);
+     digitalWrite(st_a, HIGH); //D
+     digitalWrite(st_b, HIGH);
+     digitalWrite(st_c, HIGH);
+     digitalWrite(st_d, LOW);
+     delay(t_step);
+     digitalWrite(st_a, HIGH); //CD
+     digitalWrite(st_b, HIGH);
+     digitalWrite(st_c, LOW);
+     digitalWrite(st_d, LOW);
+     delay(t_step);
+     digitalWrite(st_a, HIGH); //C
+     digitalWrite(st_b, HIGH);
+     digitalWrite(st_c, LOW);
+     digitalWrite(st_d, HIGH);
+     delay(t_step);
+     digitalWrite(st_a, HIGH); //BC
+     digitalWrite(st_b, LOW);
+     digitalWrite(st_c, LOW);
+     digitalWrite(st_d, HIGH);
+     delay(t_step);
+     digitalWrite(st_a, HIGH); //B
+     digitalWrite(st_b, LOW);
+     digitalWrite(st_c, HIGH);
+     digitalWrite(st_d, HIGH);
+     delay(t_step);
+     digitalWrite(st_a, LOW); //AB
+     digitalWrite(st_b, LOW);
+     digitalWrite(st_c, HIGH);
+     digitalWrite(st_d, HIGH);
+     delay(t_step);
+     digitalWrite(st_a, LOW); //A
+     digitalWrite(st_b, HIGH);
+     digitalWrite(st_c, HIGH);
+     digitalWrite(st_d, HIGH);
+     delay(t_step);
+   }
+ 
 
 
