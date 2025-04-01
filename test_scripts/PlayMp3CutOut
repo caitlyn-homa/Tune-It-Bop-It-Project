@@ -163,6 +163,12 @@ protected:
     DfMp3 _dfmp3;
 };
 
+
+
+//Everything above here is the class
+//Everything below is the setup example
+
+
 Mp3Manager mp3; // instance your class per your design
 
 int i = 0;
