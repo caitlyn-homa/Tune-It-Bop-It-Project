@@ -5,10 +5,12 @@
 #include <Wire.h>
 #include "SparkFunLIS3DH.h" 
 
+#include "Mp3Manager.hpp"
+
 //Keep track of player's score throughout the game
 byte score = 0;
 //Initial time player has to complete a task [seconds]
-int time_to_complete = 4;
+float time_to_complete = 4.0;
 //Keeps track whether action was successfully completed or not 
 bool isComplete = false;
 //Keeps track of what round player is on - will be used to exit loop if player loses 
@@ -21,6 +23,8 @@ bool restartPressed = false;
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 LIS3DH SensorOne( I2C_MODE, 0x19 );
+
+Mp3Manager mp3; // instance your class per your design
 
 void setup() {
   //Seed random number generation with current time -ensures variation in the sequence of random numbers 
@@ -54,10 +58,12 @@ void setup() {
   //OLED set-up 
   oled_set_up();
 
+  mp3.begin();
 }
 
 void loop() {
 
+  waitMilliseconds(100);
   oled_display_str("Press Start", 2);
 
   //If start of new game 
@@ -300,7 +306,7 @@ bool has_tuned(int time_lim)
   time_lim = time_lim * 1000;
 
   //Set a threshold that the knob must be turned to for a successful attempt 
-  int thresh = 50;
+  byte thresh = 50;
 
   //Obtain current time and begin the countdown  
   int starttime = millis();
@@ -392,7 +398,7 @@ void oled_display_str(char* disp, byte text_size){
 
 }
 
-//Visual countdown on oled for whenn game is about to begin
+//Visual countdown on oled for when game is about to begin
 void oled_countdown(int time) 
 {
   time = time * 1000;  // Convert time to milliseconds
@@ -520,4 +526,20 @@ void motor_reset()
      delay(t_step);
    }
  }
+
+//MP3 Function
+
+ void waitMilliseconds(uint16_t msWait)
+{
+    uint32_t start = millis();
+
+    while ((millis() - start) < msWait)
+    {
+        // if you have loops with delays, its important to 
+        // call dfmp3.loop() periodically so it allows for notifications 
+        // to be handled without interrupts
+        mp3.loop();
+        delay(1);
+    }
+}
  
