@@ -79,8 +79,10 @@ void loop() {
 
       if (isComplete) {
         score++;
+        mp3.setVolume(volume);
+        oled_display_str(F("Good Job!"), 2);
         rotate_motor(1, 2);
-        waitMilliseconds(300);
+        waitMilliseconds(600);
       } else {
         player_lost(score);
         break;
@@ -110,13 +112,27 @@ bool has_shaken(float time_lim) {
   int duration = (int)(time_lim * 1000);
   float threshold = 1.25;
   unsigned long start = millis();
+  int cuttime = 200; //200ms between cuts
+  int cuts = 0;
 
   while ((millis() - start) <= duration) {
     float ax = SensorOne.readFloatAccelX();
     float ay = SensorOne.readFloatAccelY();
     float az = SensorOne.readFloatAccelZ();
     float mag = sqrt(ax * ax + ay * ay + az * az);
-    if (mag > threshold) return true;
+
+    if(millis()-start > cuttime*cuts)
+    {
+      mp3.setVolume(volume*round(random(0,2)));
+      ++cuts;
+    }
+
+    if (mag > threshold)
+    {
+      mp3.setVolume(volume);
+      return true;
+    }
+
     mp3.loop();
   }
   return false;
@@ -127,23 +143,45 @@ bool has_pulled(float time_lim) {
   int startState = digitalRead(2);
   unsigned long start = millis();
 
+  mp3.setVolume(volume/2);
+
   while ((millis() - start) <= duration) {
-    if (digitalRead(2) != startState) return true;
+
+    if (digitalRead(2) != startState) 
+    {
+      mp3.setVolume(volume);
+      return true;
+    }  
     mp3.loop();
   }
+  mp3.setVolume(volume);
   return false;
 }
 
 bool has_tuned(float time_lim) {
   int duration = (int)(time_lim * 1000);
-  int threshold = 50;
+  int threshold = 100;
   int startVal = analogRead(A0);
   unsigned long start = millis();
+  int cuts = 0;
+  int cuttime = 100;
 
   while ((millis() - start) <= duration) {
-    if (abs(analogRead(A0) - startVal) > threshold) return true;
+    if (abs(analogRead(A0) - startVal) > threshold) 
+    {
+      mp3.setVolume(volume);
+      return true;
+    }
+
+    if(millis()-start > cuts*cuttime)
+    {
+      mp3.setVolume(volume*random(0.5,1));
+      ++cuts;
+    }
+
     mp3.loop();
   }
+  mp3.setVolume(volume);
   return false;
 }
 
@@ -192,7 +230,7 @@ void waitMilliseconds(uint16_t ms) {
   uint32_t start = millis();
   while ((millis() - start) < ms) {
     mp3.loop();
-    if(abs(analogRead(A3)/20.5-volume)>3)
+    if(abs(analogRead(A3)/20.5-volume)>5)
     {
       volume = analogRead(A3)/20.5;
       mp3.setVolume(volume);
