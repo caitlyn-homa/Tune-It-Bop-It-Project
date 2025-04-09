@@ -192,7 +192,7 @@ void waitMilliseconds(uint16_t ms) {
   uint32_t start = millis();
   while ((millis() - start) < ms) {
     mp3.loop();
-    if(abs(analogRead(A3)-volume)>3)
+    if(abs(analogRead(A3)/20.5-volume)>3)
     {
       volume = analogRead(A3)/20.5;
       mp3.setVolume(volume);
