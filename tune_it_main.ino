@@ -17,7 +17,14 @@ Mp3Manager mp3;
 
 // Game state
 byte score = 0;
+
+//Timing Parameters
+int numRounds = 99;
+//float start_time = 4.0;
+//float end_time = 0.7;
+float time_constant = -numRounds/log(0.7/4);
 float time_to_complete = 4.0;
+
 int volume = analogRead(A3)/20.5;
 bool isComplete = false;
 byte iteration = 0;
@@ -44,7 +51,6 @@ void setup() {
   display.clearDisplay();
   display.display();
 
-  mp3.begin();
   SensorOne.begin();
 }
 
@@ -54,11 +60,12 @@ void loop() {
 
   if (restartPressed) {
     restartPressed = false;
+    mp3.begin();
     motor_reset();
     oled_display_str(F("Get Ready!"), 2);
     oled_countdown(3);
 
-    for (iteration = 0; iteration < 99; iteration++) {
+    for (iteration = 0; iteration < numRounds; iteration++) {
       mp3.loop();
       isComplete = false;
       byte action_number = random(1, 4);
@@ -88,10 +95,11 @@ void loop() {
         break;
       }
 
-      if (iteration % 5 == 0) time_to_complete -= 0.15;
+      //Update game time
+      time_to_complete = 4 * exp(-(iteration+1)/time_constant);
     }
 
-    if (score == 99) player_won();
+    if (score == numRounds) player_won();
     iteration = 0;
   }
 }
@@ -143,7 +151,7 @@ bool has_pulled(float time_lim) {
   int startState = digitalRead(2);
   unsigned long start = millis();
 
-  mp3.setVolume(volume/2);
+  mp3.setVolume(volume*0.7);
 
   while ((millis() - start) <= duration) {
 
@@ -160,11 +168,11 @@ bool has_pulled(float time_lim) {
 
 bool has_tuned(float time_lim) {
   int duration = (int)(time_lim * 1000);
-  int threshold = 100;
+  int threshold = 300;
   int startVal = analogRead(A0);
   unsigned long start = millis();
   int cuts = 0;
-  int cuttime = 100;
+  int cuttime = 20;
 
   while ((millis() - start) <= duration) {
     if (abs(analogRead(A0) - startVal) > threshold) 
@@ -175,7 +183,7 @@ bool has_tuned(float time_lim) {
 
     if(millis()-start > cuts*cuttime)
     {
-      mp3.setVolume(volume*random(0.5,1));
+      mp3.setVolume(volume*(random(3,10)/10.0));
       ++cuts;
     }
 
