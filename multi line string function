@@ -1,0 +1,10 @@
+void oled_display_str(const __FlashStringHelper *disp, byte size, byte y, bool isClear) {
+  if (isClear){ 
+    display.clearDisplay();
+  }
+  display.setTextSize(size);
+  display.setTextColor(WHITE);
+  display.setCursor(0, size*y);    //size = font size, y is want number row 
+  display.println(disp);
+  display.display();
+}
