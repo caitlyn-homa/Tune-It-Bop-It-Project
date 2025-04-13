@@ -54,7 +54,7 @@ public:
         uint16_t volume = _dfmp3.getVolume();
         Serial.print("volume ");
         Serial.println(volume);
-        _dfmp3.setVolume(24);
+        //_dfmp3.setVolume(24);
 
         uint16_t count = _dfmp3.getTotalTrackCount(DfMp3_PlaySource_Sd);
         Serial.print("files ");
