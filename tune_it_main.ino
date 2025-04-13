@@ -56,13 +56,16 @@ void setup() {
 
 void loop() {
   waitMilliseconds(100);
-  oled_display_str(F("Press Start"), 2);
+  //oled_display_str(F("Press Start"), 2);
+  oled_display_str(F("Press"), 2, 0, true);
+  oled_display_str(F("Start"), 2, 1, false);
 
   if (restartPressed) {
     restartPressed = false;
     mp3.begin();
+    waitMilliseconds(10);
     motor_reset();
-    oled_display_str(F("Get Ready!"), 2);
+    oled_display_str(F("Get Ready!"), 2, 0, true);
     oled_countdown(3);
 
     for (iteration = 0; iteration < numRounds; iteration++) {
@@ -71,15 +74,15 @@ void loop() {
       byte action_number = random(1, 4);
 
       if (action_number == 1) {
-        oled_display_str(F("Pull It!"), 2);
+        oled_display_str(F("Pull It!"), 2, 0, true);
         waitMilliseconds(300);
         isComplete = has_pulled(time_to_complete);
       } else if (action_number == 2) {
-        oled_display_str(F("Tune It!"), 2);
+        oled_display_str(F("Tune It!"), 2, 0, true);
         waitMilliseconds(300);
         isComplete = has_tuned(time_to_complete);
       } else {
-        oled_display_str(F("Shake It!"), 2);
+        oled_display_str(F("Shake It!"), 2, 0, true);
         waitMilliseconds(300);
         isComplete = has_shaken(time_to_complete);
       }
@@ -87,7 +90,8 @@ void loop() {
       if (isComplete) {
         score++;
         mp3.setVolume(volume);
-        oled_display_str(F("Good Job!"), 2);
+        oled_display_str(F("Signal"), 2, 0, true);
+        oled_display_str(F("Connected!"), 2, 1, false);
         rotate_motor(1, 2);
         waitMilliseconds(600);
       } else {
@@ -121,7 +125,10 @@ bool has_shaken(float time_lim) {
   float threshold = 1.25;
   unsigned long start = millis();
   int cuttime = 200; //200ms between cuts
+  int tune_threshold = 600;
+  int startVal = analogRead(A0);
   int cuts = 0;
+  int startState = digitalRead(2);
 
   while ((millis() - start) <= duration) {
     float ax = SensorOne.readFloatAccelX();
@@ -135,10 +142,25 @@ bool has_shaken(float time_lim) {
       ++cuts;
     }
 
+    //Succeed if shaken
     if (mag > threshold)
     {
       mp3.setVolume(volume);
       return true;
+    }
+
+    //Fail if pulled
+    if (digitalRead(2) != startState) 
+    {
+      mp3.setVolume(volume);
+      return false;
+    }  
+
+    //Fail if tuned
+    if (abs(analogRead(A0) - startVal) > tune_threshold) 
+    {
+      mp3.setVolume(volume);
+      return false;
     }
 
     mp3.loop();
@@ -149,17 +171,28 @@ bool has_shaken(float time_lim) {
 bool has_pulled(float time_lim) {
   int duration = (int)(time_lim * 1000);
   int startState = digitalRead(2);
+  int threshold = 600;
+  int startVal = analogRead(A0);
   unsigned long start = millis();
 
   mp3.setVolume(volume*0.7);
 
   while ((millis() - start) <= duration) {
 
+    //Succeed if pulled
     if (digitalRead(2) != startState) 
     {
       mp3.setVolume(volume);
       return true;
-    }  
+    } 
+
+    //Fail if tuned
+    if (abs(analogRead(A0) - startVal) > threshold) 
+    {
+      mp3.setVolume(volume);
+      return false;
+    }
+
     mp3.loop();
   }
   mp3.setVolume(volume);
@@ -171,10 +204,12 @@ bool has_tuned(float time_lim) {
   int threshold = 300;
   int startVal = analogRead(A0);
   unsigned long start = millis();
+  int startState = digitalRead(2);
   int cuts = 0;
   int cuttime = 20;
 
   while ((millis() - start) <= duration) {
+    //Succeed if tuned
     if (abs(analogRead(A0) - startVal) > threshold) 
     {
       mp3.setVolume(volume);
@@ -187,6 +222,13 @@ bool has_tuned(float time_lim) {
       ++cuts;
     }
 
+    //Fail if pulled
+    if (digitalRead(2) != startState) 
+    {
+      mp3.setVolume(volume);
+      return false;
+    } 
+
     mp3.loop();
   }
   mp3.setVolume(volume);
@@ -194,26 +236,38 @@ bool has_tuned(float time_lim) {
 }
 
 void player_lost(byte final_score) {
-  oled_display_str(F("You Lost"), 2);
+  oled_display_str(F("You Lost"), 2, 0, true);
   waitMilliseconds(1500);
-  oled_display_str(F("Score:"), 2);
+  oled_display_str(F("Score:"), 2, 0, true);
+  waitMilliseconds(500);
   oled_display_score(final_score);
   waitMilliseconds(2000);
   iteration = 101;
 }
 
 void player_won() {
-  oled_display_str(F("Congrats!"), 2);
+  oled_display_str(F("Congrats!"), 2, 0, true);
   waitMilliseconds(2000);
-  oled_display_str(F("You Win!"), 2);
+  oled_display_str(F("You Win!"), 2, 0, true);
   waitMilliseconds(2000);
 }
 
-void oled_display_str(const __FlashStringHelper *disp, byte size) {
-  display.clearDisplay();
+// void oled_display_str(const __FlashStringHelper *disp, byte size) {
+//   display.clearDisplay();
+//   display.setTextSize(size);
+//   display.setTextColor(WHITE);
+//   display.setCursor(0, 10);
+//   display.println(disp);
+//   display.display();
+// }
+
+void oled_display_str(const __FlashStringHelper *disp, byte size, byte y, bool isClear) {
+  if (isClear){ 
+    display.clearDisplay();
+  }
   display.setTextSize(size);
   display.setTextColor(WHITE);
-  display.setCursor(0, 10);
+  display.setCursor(0, size*y*12);    //size = font size, y is want number row 
   display.println(disp);
   display.display();
 }
