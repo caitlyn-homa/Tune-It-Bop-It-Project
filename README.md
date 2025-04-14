@@ -36,3 +36,6 @@ These scripts were used in the interfacing stage of development and were referen
 
 ### PCB_Files
 These files in the design and manufacturing of the PCB, this includes the schematic, the pcb design file, and the exported manufacturing files.
+
+### laser_cut
+These files were used to laser cut the score dial and the mesh on the front of the device.
