@@ -19,18 +19,18 @@
 |  | 8 | st_d |
 | Reset LED | 9 | RLD |
 
-##Final_Code
+## Final_Code
 This folder contains the final code uploaded to the microcontroller.
 This consists of the main game code as well as the modified class for the mp3 player.
 
-##3D Print Files
+## 3D Print Files
 This folder contains every file used for 3D printing, this includes the enclosure as well as the internal mechanical mechanisms.
 
-##prorotype_functions
+## prorotype_functions
 This contains functions that were created later in the software development and were written in a separate file before integration.
 
-##test_scripts
+## test_scripts
 These scripts were used in the interfacing stage of development and were referenced throughout the process of creating the final code.
 
-##PCB_Files
+## PCB_Files
 These files in the design and manufacturing of the PCB, this includes the schematic, the pcb design file, and the exported manufacturing files.
