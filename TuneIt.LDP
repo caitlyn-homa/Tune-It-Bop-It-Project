@@ -1,0 +1,3 @@
+Layer Pairs Export File for PCB: C:\Users\Public\Documents\Altium\Timer_555_AM_Transmitter\TuneIt.PcbDoc
+LayersSetName=Top_Bot_Thru_Holes|DrillFile=tuneit.txt|DrillLayers=gtl,gbl
+LayersSetName=Top_Bot_Rect_Holes|DrillFile=tuneit-rectholes.txt|DrillLayers=gtl,gbl
