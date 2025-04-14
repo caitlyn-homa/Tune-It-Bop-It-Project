@@ -19,7 +19,9 @@
 |  | 8 | st_d |
 | Reset LED | 9 | RLD |
 
-## Final_Code
+# File Directory
+
+### Final_Code
 This folder contains the final code uploaded to the microcontroller.
 This consists of the main game code as well as the modified class for the mp3 player.
 
